@@ -112,7 +112,7 @@ uint8_t RF24::write_register(uint8_t reg, uint8_t value)
 {
   uint8_t status;
 
-  SERIAL("write_register(%02x,%02x)",reg,value);
+  //SERIAL("write_register(%02x,%02x)",reg,value);
 
   csn(LOW);
   status = SPI.transfer( W_REGISTER | ( REGISTER_MASK & reg ) );
@@ -133,7 +133,7 @@ uint8_t RF24::write_payload(const void* buf, uint8_t len)
   uint8_t data_len = min(len,payload_size);
   uint8_t blank_len = dynamic_payloads_enabled ? 0 : payload_size - data_len;
   
-  SERIAL("[Writing %u bytes %u blanks]",data_len,blank_len);
+  //SERIAL("[Writing %u bytes %u blanks]",data_len,blank_len);
   
   csn(LOW);
   status = SPI.transfer( W_TX_PAYLOAD );
@@ -156,7 +156,7 @@ uint8_t RF24::read_payload(void* buf, uint8_t len)
   uint8_t data_len = min(len,payload_size);
   uint8_t blank_len = dynamic_payloads_enabled ? 0 : payload_size - data_len;
   
-  SERIAL("[Reading %u bytes %u blanks]",data_len,blank_len);
+  //SERIAL("[Reading %u bytes %u blanks]",data_len,blank_len);
   
   csn(LOW);
   status = SPI.transfer( R_RX_PAYLOAD );
@@ -350,10 +350,10 @@ void RF24::printDetails(void)
   print_byte_register("CONFIG",CONFIG);
   print_byte_register("DYNPD/FEATURE",DYNPD,2);
 
-  SERIAL("Data Rate\t = %S\r\n",rf24_datarate_e_str_P[getDataRate()]);
-  SERIAL("Model\t\t = %S\r\n",rf24_model_e_str_P[isPVariant()]);
-  SERIAL("CRC Length\t = %S\r\n",rf24_crclength_e_str_P[getCRCLength()]);
-  SERIAL("PA Power\t = %S\r\n",rf24_pa_dbm_e_str_P[getPALevel()]);
+  SERIAL("Data Rate\t = %s\r\n",rf24_datarate_e_str_P[getDataRate()]);
+  SERIAL("Model\t\t = %s\r\n",rf24_model_e_str_P[isPVariant()]);
+  SERIAL("CRC Length\t = %s\r\n",rf24_crclength_e_str_P[getCRCLength()]);
+  SERIAL("PA Power\t = %s\r\n",rf24_pa_dbm_e_str_P[getPALevel()]);
 }
 
 /****************************************************************************/
