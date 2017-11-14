@@ -70,9 +70,9 @@ uint8_t RF24::read_register(uint8_t reg, uint8_t* buf, uint8_t len)
 
   csn(LOW);
   status = SPI.transfer( R_REGISTER | ( REGISTER_MASK & reg ) );
-  while ( len-- )
+  while ( len-- ) {
     *buf++ = SPI.transfer(0xff);
-
+  }
   csn(HIGH);
 
   return status;
@@ -98,9 +98,9 @@ uint8_t RF24::write_register(uint8_t reg, const uint8_t* buf, uint8_t len)
 
   csn(LOW);
   status = SPI.transfer( W_REGISTER | ( REGISTER_MASK & reg ) );
-  while ( len-- )
+  while ( len-- ) {
     SPI.transfer(*buf++);
-
+  }
   csn(HIGH);
 
   return status;
@@ -137,10 +137,12 @@ uint8_t RF24::write_payload(const void* buf, uint8_t len)
   
   csn(LOW);
   status = SPI.transfer( W_TX_PAYLOAD );
-  while ( data_len-- )
+  while ( data_len-- ) {
     SPI.transfer(*current++);
-  while ( blank_len-- )
+  }
+  while ( blank_len-- ) {
     SPI.transfer(0);
+  }
   csn(HIGH);
 
   return status;
@@ -160,10 +162,12 @@ uint8_t RF24::read_payload(void* buf, uint8_t len)
   
   csn(LOW);
   status = SPI.transfer( R_RX_PAYLOAD );
-  while ( data_len-- )
+  while ( data_len-- ) {
     *current++ = SPI.transfer(0xff);
-  while ( blank_len-- )
+  }
+  while ( blank_len-- ) {
     SPI.transfer(0xff);
+  }
   csn(HIGH);
 
   return status;
@@ -239,8 +243,9 @@ void RF24::print_byte_register(const char* name, uint8_t reg, uint8_t qty)
 {
   char extra_tab = strlen(name) < 8 ? '\t' : 0;
   SERIAL("%s\t%c =",name,extra_tab);
-  while (qty--);
+  while (qty--) {
     SERIAL(" 0x%02x",read_register(reg++));
+  }
   SERIAL("\n\r");
 }
 
@@ -258,8 +263,9 @@ void RF24::print_address_register(const char* name, uint8_t reg, uint8_t qty)
 
     SERIAL(" 0x");
     uint8_t* bufptr = buffer + sizeof buffer;
-    while( --bufptr >= buffer );
+    while( --bufptr >= buffer ) {
       SERIAL("%02x",*bufptr);
+    }
   }
   SERIAL("\n\r");
 }
@@ -427,9 +433,9 @@ void RF24::startListening(void)
   write_register(STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT) );
 
   // Restore the pipe0 adddress, if exists
-  if (pipe0_reading_address)
+  if (pipe0_reading_address) {
     write_register(RX_ADDR_P0, reinterpret_cast<const uint8_t*>(&pipe0_reading_address), 5);
-
+  }
   // Flush buffers
   flush_rx();
   flush_tx();
@@ -582,9 +588,9 @@ bool RF24::available(uint8_t* pipe_num)
   if (result)
   {
     // If the caller wants the pipe number, include that
-    if ( pipe_num )
+    if ( pipe_num ) {
       *pipe_num = ( status >> RX_P_NO ) & B111;
-
+    }
     // Clear the status bit
 
     // ??? Should this REALLY be cleared now?  Or wait until we
@@ -661,9 +667,9 @@ void RF24::openReadingPipe(uint8_t child, uint64_t address)
   // If this is pipe 0, cache the address.  This is needed because
   // openWritingPipe() will overwrite the pipe 0 address, so
   // startListening() will have to restore it.
-  if (child == 0)
+  if (child == 0) {
     pipe0_reading_address = address;
-
+  }
   if (child <= 6)
   {
     // For pipes 2-5, only write the LSB
@@ -754,9 +760,9 @@ void RF24::writeAckPayload(uint8_t pipe, const void* buf, uint8_t len)
   SPI.transfer( W_ACK_PAYLOAD | ( pipe & B111 ) );
   const uint8_t max_payload_size = 32;
   uint8_t data_len = min(len,max_payload_size);
-  while ( data_len-- )
+  while ( data_len-- ) {
     SPI.transfer(*current++);
-
+  }
   csn(HIGH);
 }
 
@@ -780,10 +786,12 @@ bool RF24::isPVariant(void)
 
 void RF24::setAutoAck(bool enable)
 {
-  if ( enable )
+  if ( enable ) {
     write_register(EN_AA, B111111);
-  else
+  }
+  else {
     write_register(EN_AA, 0);
+  }
 }
 
 /****************************************************************************/
@@ -986,10 +994,12 @@ rf24_crclength_e RF24::getCRCLength(void)
 
   if ( config & _BV(EN_CRC ) )
   {
-    if ( config & _BV(CRCO) )
+    if ( config & _BV(CRCO) ) {
       result = RF24_CRC_16;
-    else
+    }
+    else {
       result = RF24_CRC_8;
+    }
   }
 
   return result;
